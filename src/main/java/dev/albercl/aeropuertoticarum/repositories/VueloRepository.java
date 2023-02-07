@@ -10,5 +10,8 @@ import java.util.List;
 @Repository
 public interface VueloRepository extends JpaRepository<Vuelo, Long> {
     @Query("select v from Vuelo v join v.aerolinea al where al.name = ?1 and (v.despegue >= current_timestamp or v.despegue = null)")
-    List<Vuelo> getVuelosPendientesByAerolinea(String aerolineaName);
+    List<Vuelo> findPendientesByAerolinea(String aerolineaName);
+
+    @Query("select v from Vuelo v join v.aerolinea al where al.name = ?1 and v.despegue < current_timestamp")
+    List<Vuelo> findDespegadosByAerolinea(String aerolineaName);
 }

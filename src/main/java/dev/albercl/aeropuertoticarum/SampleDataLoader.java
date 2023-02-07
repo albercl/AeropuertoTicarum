@@ -18,31 +18,34 @@ public class SampleDataLoader {
         this.aerolineaRepository = aerolineaRepository;
         this.avionRepository = avionRepository;
 
-        LoadAerolineas();
-        LoadAviones();
+        Aerolinea al = LoadAerolineas();
+        LoadAviones(al);
     }
 
-    private void LoadAerolineas() {
+    private Aerolinea LoadAerolineas() {
         Aerolinea a = new Aerolinea();
         a.setName("MiAerolinea");
 
-        aerolineaRepository.save(a);
+        return aerolineaRepository.save(a);
     }
 
-    private void LoadAviones() {
+    private void LoadAviones(Aerolinea al) {
         Avion av = new Avion();
         av.setModel("Modelo 1");
         av.setCapacity(100);
+        av.setAerolinea(al);
         avionRepository.save(av);
 
         av = new Avion();
         av.setModel("Modelo 2");
         av.setCapacity(200);
+        av.setAerolinea(al);
         avionRepository.save(av);
 
         av = new Avion();
         av.setModel("Modelo 3");
         av.setCapacity(300);
+        av.setAerolinea(al);
         avionRepository.save(av);
     }
 }

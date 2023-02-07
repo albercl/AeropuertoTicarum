@@ -1,6 +1,5 @@
 package dev.albercl.aeropuertoticarum.controllers;
 
-import com.jayway.jsonpath.JsonPath;
 import dev.albercl.aeropuertoticarum.AeropuertoTicarum;
 import dev.albercl.aeropuertoticarum.model.Aerolinea;
 import dev.albercl.aeropuertoticarum.model.Avion;
@@ -8,21 +7,22 @@ import dev.albercl.aeropuertoticarum.model.Vuelo;
 import dev.albercl.aeropuertoticarum.repositories.AerolineaRepository;
 import dev.albercl.aeropuertoticarum.repositories.AvionRepository;
 import dev.albercl.aeropuertoticarum.repositories.VueloRepository;
-import org.junit.jupiter.api.*;
+import dev.albercl.aeropuertoticarum.services.AerolineaService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
@@ -45,134 +45,109 @@ public class VuelosControllerTest {
     @Autowired
     private AvionRepository avionRepository;
 
+    @Autowired
+    private AerolineaService service;
+
     private Aerolinea aerolinea;
     private Avion avion;
 
     private Vuelo vuelo;
 
-    @BeforeAll
+    @BeforeEach
     void createTestData() {
-        Aerolinea a = new Aerolinea();
-        a.setName("Aerolinea Test");
+        vueloRepository.deleteAll();
+        avionRepository.deleteAll();
+        aerolineaRepository.deleteAll();
 
-        aerolinea = aerolineaRepository.save(a);
+        aerolinea = new Aerolinea();
+        aerolinea.setName("AerolineaTest");
+        aerolinea = aerolineaRepository.save(aerolinea);
 
-        Avion av = new Avion();
-        av.setCapacity(200);
-        av.setModel("Test model");
+        avion = new Avion();
+        avion.setCapacity(200);
+        avion.setModel("Test model");
+        avion.setAerolinea(aerolinea);
+        avion = avionRepository.save(avion);
 
-        avion = avionRepository.save(av);
-
-        Vuelo v = new Vuelo();
-        v.setAvion(avion);
-        v.setAerolinea(aerolinea);
-
-        vuelo = vueloRepository.save(v);
+        vuelo = new Vuelo();
+        vuelo.setAvion(avion);
+        vuelo.setAerolinea(aerolinea);
+        vuelo = vueloRepository.save(vuelo);
     }
 
     @Test
-    void getVueloShouldReturnVuelo() throws Exception {
-        mvc.perform(get("/{aerolinea}/services/vuelo", aerolinea.getName()))
-                .andExpectAll(
-                        jsonPath("$", hasSize(1)),
-                        jsonPath("$.[0].avion", is(avion.getId().intValue())),
-                        jsonPath("$.[0].aerolinea", is(aerolinea.getId().intValue()))
-                );
+    void getVuelosPendientes_VueloPendiente_ListOfVuelos() throws Exception {
+        mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(vuelo.getId().intValue())));
     }
 
     @Test
-    void getVueloShouldntReturnVueloDespegado() throws Exception {
-        vuelo.setDespegue(LocalDateTime.now());
+    void getVuelosPendientes_VueloDespegado_ListOfVuelos() throws Exception {
+        service.despegarVuelo(vuelo.getId());
 
-        vueloRepository.save(vuelo);
-
-        mvc.perform(get("/{aerolinea}/services/vuelo", aerolinea.getName()))
+        mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
-    void postVueloShouldSaveVuelo() throws Exception {
-        MvcResult result = mvc.perform(post("/{aerolinea}/services/vuelo", aerolinea.getName()))
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("$.id", notNullValue()),
-                        jsonPath("$.avion", is(avion.getId())),
-                        jsonPath("$.aerolinea", is(avion.getId())),
-                        jsonPath("$.despegue", blankOrNullString()),
-                        jsonPath("$.salida", blankOrNullString())
-                )
-                .andReturn();
+    void postNuevoVuelo_ValidVuelo_VueloCreated() throws Exception {
+        // Create a new vuelo with avion and aerolinea in json
+        String json = String.format("{\"avion\": %d}", avion.getId(), aerolinea.getName());
 
-        long vueloId = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
-        Assertions.assertTrue(vueloRepository.findById(vueloId).isPresent());
-    }
-
-    @Test
-    void postVueloWithoutAvionShouldReturnBadRequest() throws Exception {
-        String vueloJson = "{}";
-
-        mvc.perform(post("/{aerolinea}/services/vuelo", aerolinea.getName())
+        mvc.perform(post("/" + aerolinea.getName() + "/services/vuelo")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(vueloJson))
-                .andExpectAll(status().isBadRequest())
-                .andReturn();
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.avion", is(avion.getId().intValue())))
+                .andExpect(jsonPath("$.aerolinea", is(aerolinea.getId().intValue())))
+                .andExpect(jsonPath("$.despegue", nullValue()))
+                .andExpect(jsonPath("$.entrada", notNullValue()));
     }
 
     @Test
-    void postVueloWithInvalidAvionShouldReturnBadRequest() throws Exception {
-        String vuelo = "{avion: null}";
+    void postNuevoVuelo_InvalidAerolinea_NotFound() throws Exception {
+        // Create a new vuelo with avion
+        String json = String.format("{\"avion\": %d}", avion.getId());
 
-        mvc.perform(post("/{aerolinea}/services/vuelo", aerolinea.getName())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(vuelo))
-                .andExpectAll(status().isBadRequest())
-                .andReturn();
-    }
-
-    @Test
-    void getVueloByIdShouldReturnNotFound() throws Exception {
-        mvc.perform(get("/{aerolinea}/services/vuelo/{id}", aerolinea.getName(), -1))
+        mvc.perform(post("/aerolineafalsa/services/vuelo")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getVueloByIdShouldReturnVuelo() throws Exception {
-        mvc.perform(get("/{aerolinea}/services/vuelo/{id}", aerolinea.getName(), vuelo.getId()))
-                .andExpectAll(
-                        jsonPath("$.despegue", is(vuelo.getDespegue().toString())),
-                        jsonPath("$.aerolinea", is(aerolinea.getId())),
-                        jsonPath("$.avion", is(avion.getId())),
-                        jsonPath("$.id", notNullValue())
-                );
-    }
+    void postNuevoVuelo_EmptyVuelo_BadRequest() throws Exception {
+        // Create a new vuelo without avion
+        String json = "{}";
 
-    @Test
-    void putVueloShouldReturnNotFound() throws Exception {
-        mvc.perform(put("/{aerolinea}/services/vuelo/{id}", aerolinea.getName(), -1))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void putVueloShouldReturnNoContent() throws Exception {
-        vuelo.setDespegue(LocalDateTime.now().plus(2, ChronoUnit.HOURS));
-        vueloRepository.save(vuelo);
-
-        String content = String.format(
-                "{avion: %d, aerolinea: %d, despegue: %s}",
-                vuelo.getAvion().getId(),
-                vuelo.getAerolinea().getId(),
-                vuelo.getDespegue().toString()
-        );
-
-        MvcResult result = mvc.perform(
-                put("/{aerolinea}/services/vuelo/{id}", aerolinea.getName(), vuelo.getId())
+        mvc.perform(post("/" + aerolinea.getName() + "/services/vuelo")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isNoContent())
-                .andReturn();
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
 
-        Vuelo updatedVuelo = vueloRepository.findById(vuelo.getId()).orElse(null);
+    @Test
+    void getVuelo_ValidVuelo_Vuelo() throws Exception {
+        Vuelo v = service.addVuelo(aerolinea.getName(), new Vuelo(avion));
 
-        Assertions.assertEquals(updatedVuelo.getDespegue(), vuelo.getDespegue());
+        mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo/" + v.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(v.getId().intValue())))
+                .andExpect(jsonPath("$.avion", is(avion.getId().intValue())))
+                .andExpect(jsonPath("$.aerolinea", is(aerolinea.getId().intValue())))
+                .andExpect(jsonPath("$.entrada", notNullValue()));
+    }
+
+    @Test
+    void getVuelo_InvalidVuelo_NotFound() throws Exception {
+        mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo/-1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

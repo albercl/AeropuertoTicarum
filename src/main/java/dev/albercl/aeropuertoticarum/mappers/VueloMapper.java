@@ -1,5 +1,6 @@
 package dev.albercl.aeropuertoticarum.mappers;
 
+import dev.albercl.aeropuertoticarum.dto.PostVueloDto;
 import dev.albercl.aeropuertoticarum.dto.VueloDto;
 import dev.albercl.aeropuertoticarum.model.Vuelo;
 import dev.albercl.aeropuertoticarum.repositories.AerolineaRepository;
@@ -19,13 +20,14 @@ public class VueloMapper {
         this.avionRepository = avionRepository;
     }
 
-    public VueloDto toVueloDto(Vuelo entity) {
+    public VueloDto toDto(Vuelo entity) {
         VueloDto vdto = new VueloDto();
 
         vdto.setId(entity.getId());
         vdto.setAerolinea(entity.getAerolinea().getId());
         vdto.setAvion(entity.getAvion().getId());
         vdto.setDespegue(entity.getDespegue());
+        vdto.setEntrada(entity.getEntrada());
 
         return vdto;
     }
@@ -36,6 +38,14 @@ public class VueloMapper {
         v.setDespegue(dto.getDespegue());
         v.setAvion(avionRepository.findById(dto.getAvion()).orElse(null));
         v.setAerolinea(aerolineaRepository.findById(dto.getAerolinea()).orElse(null));
+        v.setEntrada(dto.getEntrada());
+
+        return v;
+    }
+
+    public Vuelo toVuelo(PostVueloDto dto) {
+        Vuelo v = new Vuelo();
+        v.setAvion(avionRepository.findById(dto.getAvion()).orElse(null));
 
         return v;
     }

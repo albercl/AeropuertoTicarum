@@ -16,6 +16,19 @@ public class Avion {
     @Column(nullable = false)
     private Integer capacity;
 
+    @ManyToOne
+    @JoinColumn(name = "aerolinea_id", nullable = false)
+    private Aerolinea aerolinea;
+
+    public Avion() {
+    }
+
+    public Avion(String model, Integer capacity, Aerolinea aerolinea) {
+        this.model = model;
+        this.capacity = capacity;
+        this.aerolinea = aerolinea;
+    }
+
     public String getModel() {
         return model;
     }
@@ -38,5 +51,13 @@ public class Avion {
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public Aerolinea getAerolinea() {
+        return aerolinea;
+    }
+
+    public void setAerolinea(Aerolinea aerolinea) {
+        this.aerolinea = aerolinea;
     }
 }

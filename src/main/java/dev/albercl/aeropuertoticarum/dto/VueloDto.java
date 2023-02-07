@@ -7,6 +7,7 @@ public class VueloDto {
     private long avion;
     private long aerolinea;
     private LocalDateTime despegue;
+    private LocalDateTime entrada;
 
     public long getId() {
         return id;
@@ -38,5 +39,13 @@ public class VueloDto {
 
     public void setDespegue(LocalDateTime despegue) {
         this.despegue = despegue;
+    }
+
+    public LocalDateTime getEntrada() {
+        return entrada;
+    }
+
+    public void setEntrada(LocalDateTime entrada) {
+        this.entrada = entrada;
     }
 }

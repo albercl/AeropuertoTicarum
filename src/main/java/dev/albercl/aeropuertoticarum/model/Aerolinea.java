@@ -1,5 +1,7 @@
 package dev.albercl.aeropuertoticarum.model;
 
+import org.hibernate.annotations.Formula;
+
 import javax.persistence.*;
 
 @Entity
@@ -13,8 +15,16 @@ public class Aerolinea {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private Long numeroAviones = 0l;
+    @Formula("(select count(*) from Avion av where av.aerolinea_id = id)")
+    private Long numeroAviones;
+
+    public Aerolinea() {
+    }
+
+    public Aerolinea(String name, Long numeroAviones) {
+        this.name = name;
+        this.numeroAviones = numeroAviones;
+    }
 
     public Long getId() {
         return id;
@@ -34,9 +44,5 @@ public class Aerolinea {
 
     public Long getNumeroAviones() {
         return numeroAviones;
-    }
-
-    public void setNumeroAviones(Long numeroAviones) {
-        this.numeroAviones = numeroAviones;
     }
 }
