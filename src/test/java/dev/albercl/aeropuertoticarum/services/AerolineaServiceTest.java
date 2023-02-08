@@ -134,8 +134,8 @@ public class AerolineaServiceTest {
     }
 
     @Test
-    void getVueloById_InvalidVueloId_Null() {
-        assertNull(aerolineaService.getVueloById(-1L));
+    void getVueloById_InvalidVueloId_VueloNotFoundException() {
+        assertThrows(VueloNotFoundException.class, () -> aerolineaService.getVueloById(-1L));
     }
 
     @Test
@@ -152,17 +152,19 @@ public class AerolineaServiceTest {
     }
 
     @Test
-    void updateVuelo_VueloWithoutAerolinea_Exception() {
+    void updateVuelo_VueloWithoutAvion_Exception() {
         Vuelo v = vueloRepository.save(new Vuelo(avion, aerolinea));
-        Vuelo update = new Vuelo(avion, null);
+        Vuelo update = new Vuelo(null, aerolinea);
 
         assertThrows(InvalidVueloException.class, () -> aerolineaService.updateVuelo(v.getId(), update));
     }
 
     @Test
-    void updateVuelo_VueloWithoutAvion_Exception() {
+    void updateVuelo_WithInvalidAvion_Exception() {
         Vuelo v = vueloRepository.save(new Vuelo(avion, aerolinea));
-        Vuelo update = new Vuelo(null, aerolinea);
+        Avion av = new Avion();
+        av.setId(-1L);
+        Vuelo update = new Vuelo(av, aerolinea);
 
         assertThrows(InvalidVueloException.class, () -> aerolineaService.updateVuelo(v.getId(), update));
     }
@@ -174,7 +176,7 @@ public class AerolineaServiceTest {
 
         assertEquals(v.getId(), aerolineaService.updateVuelo(v.getId(), update).getId());
 
-        Vuelo updated = vueloRepository.findById(v.getId()).get();
+        Vuelo updated = vueloRepository.findById(v.getId()).orElse(new Vuelo());
 
         assertEquals(v.getId(), updated.getId());
         assertEquals(v.getAerolinea().getId(), updated.getAerolinea().getId());

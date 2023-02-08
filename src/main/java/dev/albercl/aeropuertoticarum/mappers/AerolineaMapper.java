@@ -7,14 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AerolineaMapper {
 
-    public Aerolinea toAerolinea(AerolineaDto dto) {
-        Aerolinea a = new Aerolinea();
-
-        a.setName(dto.getName());
-
-        return a;
-    }
-
     public AerolineaDto toAerolineaDto(Aerolinea a) {
         AerolineaDto dto = new AerolineaDto();
         dto.setId(a.getId());

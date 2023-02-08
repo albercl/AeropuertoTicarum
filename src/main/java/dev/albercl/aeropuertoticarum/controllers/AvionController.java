@@ -1,23 +1,36 @@
 package dev.albercl.aeropuertoticarum.controllers;
 
-import org.springframework.web.bind.annotation.*;
+import dev.albercl.aeropuertoticarum.dto.AvionDto;
+import dev.albercl.aeropuertoticarum.mappers.AvionMapper;
+import dev.albercl.aeropuertoticarum.services.AerolineaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/{aerolineaName}/services/salida")
+@RequestMapping("/{aerolineaName}/services/aviones")
 public class AvionController {
 
-    @GetMapping("/")
-    public void getSalidas(@PathVariable String aerolineaName) {
-        //TODO
+    private final AerolineaService service;
+
+    private final AvionMapper mapper;
+
+    @Autowired
+    public AvionController(AerolineaService service, AvionMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
     }
 
-    @GetMapping("/{idVuelo}")
-    public void getSalidaVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
-        //TODO
-    }
-
-    @PutMapping("/{idVuelo}/despegue")
-    public void putDespegueVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
-        //TODO
+    @GetMapping
+    public List<AvionDto> getAviones(@PathVariable String aerolineaName) {
+        return service.getAviones(aerolineaName)
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 }

@@ -5,6 +5,7 @@ import dev.albercl.aeropuertoticarum.exceptions.InvalidVueloException;
 import dev.albercl.aeropuertoticarum.exceptions.VueloAlreadyDespegadoException;
 import dev.albercl.aeropuertoticarum.exceptions.VueloNotFoundException;
 import dev.albercl.aeropuertoticarum.model.Aerolinea;
+import dev.albercl.aeropuertoticarum.model.Avion;
 import dev.albercl.aeropuertoticarum.model.Vuelo;
 import dev.albercl.aeropuertoticarum.repositories.AerolineaRepository;
 import dev.albercl.aeropuertoticarum.repositories.AvionRepository;
@@ -48,6 +49,15 @@ public class AerolineaServiceImpl implements AerolineaService {
     }
 
     @Override
+    public List<Avion> getAviones(String aerolineaName) {
+        if(aerolineaName == null || aerolineaName.isBlank()) {
+            throw new AerolineaNotFoundException("No se ha especificado la aerolínea");
+        }
+
+        return avionRepository.getByAerolinea(aerolineaName);
+    }
+
+    @Override
     public Vuelo addVuelo(String aerolineaName, Vuelo vuelo) {
         Optional<Aerolinea> aerolineaOptional = aerolineaRepository.findByName(aerolineaName);
 
@@ -57,7 +67,10 @@ public class AerolineaServiceImpl implements AerolineaService {
         vuelo.setAerolinea(aerolineaOptional.get());
 
         if (vuelo.getAvion() == null)
-            throw new InvalidVueloException("El avión es obligatorio");
+            throw new InvalidVueloException("No se ha especificado el avión o no se ha encontrado");
+
+        if(!avionRepository.existsById(vuelo.getAvion().getId()))
+            throw new InvalidVueloException("El avión no existe");
 
         if (vuelo.getDespegue() != null) {
             throw new InvalidVueloException("No se puede crear un vuelo con despegue");
@@ -68,23 +81,26 @@ public class AerolineaServiceImpl implements AerolineaService {
 
     @Override
     public Vuelo getVueloById(Long id) {
-        // TODO: Add not found exception
-        return vueloRepository.findById(id).orElse(null);
+        return vueloRepository
+                .findById(id)
+                .orElseThrow(() -> new VueloNotFoundException("El vuelo con id " + id + " no existe"));
     }
 
     @Override
-    public Vuelo updateVuelo(Long id, Vuelo vuelo) {
-        if (!vueloRepository.existsById(id))
-            throw new VueloNotFoundException("El vuelo no existe");
+    public Vuelo updateVuelo(Long id, Vuelo vueloInput) {
+        Vuelo vuelo = vueloRepository.findById(id).orElseThrow(() -> new VueloNotFoundException("El vuelo no existe"));
 
-        if (vuelo.getAvion() == null)
+        if (vueloInput.getAvion() == null)
             throw new InvalidVueloException("El avión es obligatorio");
 
-        if (vuelo.getAerolinea() == null)
-            throw new InvalidVueloException("La aerolínea es obligatoria");
+        // Actualizar nuevos valores del vuelo (solo se puede cambiar el avión)
+        vuelo.setAvion(vueloInput.getAvion());
 
-        vuelo.setId(id);
-        return vueloRepository.save(vuelo);
+        try {
+            return vueloRepository.save(vuelo);
+        } catch (Exception e) {
+            throw new InvalidVueloException("El avión no existe");
+        }
     }
 
     @Override

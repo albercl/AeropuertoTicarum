@@ -31,20 +31,20 @@ public class SampleDataLoader {
 
     private void LoadAviones(Aerolinea al) {
         Avion av = new Avion();
-        av.setModel("Modelo 1");
-        av.setCapacity(100);
+        av.setModelo("Modelo 1");
+        av.setCapacidad(100);
         av.setAerolinea(al);
         avionRepository.save(av);
 
         av = new Avion();
-        av.setModel("Modelo 2");
-        av.setCapacity(200);
+        av.setModelo("Modelo 2");
+        av.setCapacidad(200);
         av.setAerolinea(al);
         avionRepository.save(av);
 
         av = new Avion();
-        av.setModel("Modelo 3");
-        av.setCapacity(300);
+        av.setModelo("Modelo 3");
+        av.setCapacidad(300);
         av.setAerolinea(al);
         avionRepository.save(av);
     }

@@ -1,6 +1,7 @@
 package dev.albercl.aeropuertoticarum.services;
 
 import dev.albercl.aeropuertoticarum.model.Aerolinea;
+import dev.albercl.aeropuertoticarum.model.Avion;
 import dev.albercl.aeropuertoticarum.model.Vuelo;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,8 @@ public interface AerolineaService {
     Aerolinea getAerolinea(String aerolineaName);
 
     List<Vuelo> getVuelosPendientes(String aerolineaName);
+
+    List<Avion> getAviones(String aerolineaName);
 
     Vuelo addVuelo(String aerolineaName, Vuelo vuelo);
 

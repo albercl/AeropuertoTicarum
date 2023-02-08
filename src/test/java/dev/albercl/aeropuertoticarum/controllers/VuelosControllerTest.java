@@ -19,8 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -64,8 +63,8 @@ public class VuelosControllerTest {
         aerolinea = aerolineaRepository.save(aerolinea);
 
         avion = new Avion();
-        avion.setCapacity(200);
-        avion.setModel("Test model");
+        avion.setCapacidad(200);
+        avion.setModelo("Test model");
         avion.setAerolinea(aerolinea);
         avion = avionRepository.save(avion);
 
@@ -85,7 +84,7 @@ public class VuelosControllerTest {
     }
 
     @Test
-    void getVuelosPendientes_VueloDespegado_ListOfVuelos() throws Exception {
+    void getVuelosPendientes_VueloDespegado_EmptyList() throws Exception {
         service.despegarVuelo(vuelo.getId());
 
         mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo")
@@ -97,7 +96,7 @@ public class VuelosControllerTest {
     @Test
     void postNuevoVuelo_ValidVuelo_VueloCreated() throws Exception {
         // Create a new vuelo with avion and aerolinea in json
-        String json = String.format("{\"avion\": %d}", avion.getId(), aerolinea.getName());
+        String json = String.format("{\"avion\": %d}", avion.getId());
 
         mvc.perform(post("/" + aerolinea.getName() + "/services/vuelo")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -146,8 +145,68 @@ public class VuelosControllerTest {
 
     @Test
     void getVuelo_InvalidVuelo_NotFound() throws Exception {
-        mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo/-1")
+        mvc.perform(get("/" + aerolinea.getName() + "/services/vuelo/-1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void patchVuelo_InvalidVuelo_NotFound() throws Exception {
+        mvc.perform(patch("/" + aerolinea.getName() + "/services/vuelo/-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void patchVuelo_InvalidAvionId_BadRequest() throws Exception {
+        Vuelo v = service.addVuelo(aerolinea.getName(), new Vuelo(avion));
+        String json = String.format("{\"avion\": %d}", -1);
+
+        mvc.perform(patch("/" + aerolinea.getName() + "/services/vuelo/" + v.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void patchVuelo_WithoutAvion_BadRequest() throws Exception {
+        Vuelo v = service.addVuelo(aerolinea.getName(), new Vuelo(avion));
+        String json = "{}";
+
+        mvc.perform(patch("/" + aerolinea.getName() + "/services/vuelo/" + v.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void patchVuelo_ValidVuelo_Vuelo() throws Exception {
+        Vuelo v = service.addVuelo(aerolinea.getName(), new Vuelo(avion));
+        String json = String.format("{\"avion\": %d}", avion.getId());
+
+        mvc.perform(patch("/" + aerolinea.getName() + "/services/vuelo/" + v.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(v.getId().intValue())))
+                .andExpect(jsonPath("$.avion", is(avion.getId().intValue())))
+                .andExpect(jsonPath("$.aerolinea", is(aerolinea.getId().intValue())))
+                .andExpect(jsonPath("$.entrada", notNullValue()));
+    }
+
+    @Test
+    void deleteVuelo_InvalidVuelo_NotFound() throws Exception {
+        mvc.perform(delete("/" + aerolinea.getName() + "/services/vuelo/-1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteVuelo_ValidVuelo_Vuelo() throws Exception {
+        Vuelo v = service.addVuelo(aerolinea.getName(), new Vuelo(avion));
+
+        mvc.perform(delete("/" + aerolinea.getName() + "/services/vuelo/" + v.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }

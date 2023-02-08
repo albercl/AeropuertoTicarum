@@ -11,10 +11,10 @@ public class Avion {
     private Long id;
 
     @Column(nullable = false)
-    private String model;
+    private String modelo;
 
     @Column(nullable = false)
-    private Integer capacity;
+    private Integer capacidad;
 
     @ManyToOne
     @JoinColumn(name = "aerolinea_id", nullable = false)
@@ -23,18 +23,18 @@ public class Avion {
     public Avion() {
     }
 
-    public Avion(String model, Integer capacity, Aerolinea aerolinea) {
-        this.model = model;
-        this.capacity = capacity;
+    public Avion(String modelo, Integer capacidad, Aerolinea aerolinea) {
+        this.modelo = modelo;
+        this.capacidad = capacidad;
         this.aerolinea = aerolinea;
     }
 
-    public String getModel() {
-        return model;
+    public String getModelo() {
+        return modelo;
     }
 
-    public void setModel(String model) {
-        this.model = model;
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
     }
 
     public Long getId() {
@@ -45,12 +45,12 @@ public class Avion {
         this.id = id;
     }
 
-    public Integer getCapacity() {
-        return capacity;
+    public Integer getCapacidad() {
+        return capacidad;
     }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
+    public void setCapacidad(Integer capacidad) {
+        this.capacidad = capacidad;
     }
 
     public Aerolinea getAerolinea() {

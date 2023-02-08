@@ -1,9 +1,9 @@
 package dev.albercl.aeropuertoticarum.mappers;
 
 import dev.albercl.aeropuertoticarum.dto.PostVueloDto;
+import dev.albercl.aeropuertoticarum.dto.SalidaDto;
 import dev.albercl.aeropuertoticarum.dto.VueloDto;
 import dev.albercl.aeropuertoticarum.model.Vuelo;
-import dev.albercl.aeropuertoticarum.repositories.AerolineaRepository;
 import dev.albercl.aeropuertoticarum.repositories.AvionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,12 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class VueloMapper {
 
-    private final AerolineaRepository aerolineaRepository;
     private final AvionRepository avionRepository;
 
     @Autowired
-    public VueloMapper(AerolineaRepository aerolineaRepository, AvionRepository avionRepository) {
-        this.aerolineaRepository = aerolineaRepository;
+    public VueloMapper(AvionRepository avionRepository) {
         this.avionRepository = avionRepository;
     }
 
@@ -32,15 +30,8 @@ public class VueloMapper {
         return vdto;
     }
 
-    public Vuelo toVuelo(VueloDto dto) {
-        Vuelo v = new Vuelo();
-        v.setId(dto.getId());
-        v.setDespegue(dto.getDespegue());
-        v.setAvion(avionRepository.findById(dto.getAvion()).orElse(null));
-        v.setAerolinea(aerolineaRepository.findById(dto.getAerolinea()).orElse(null));
-        v.setEntrada(dto.getEntrada());
-
-        return v;
+    public SalidaDto toSalidaDto(Vuelo entity) {
+        return new SalidaDto(entity.getId(), entity.getDespegue() != null, entity.getDespegue());
     }
 
     public Vuelo toVuelo(PostVueloDto dto) {

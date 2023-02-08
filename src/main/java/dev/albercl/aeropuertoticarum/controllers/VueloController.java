@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/{aerolineaName}/services/vuelo")
 public class VueloController {
 
-    private AerolineaService services;
+    private final AerolineaService services;
 
-    private VueloMapper vueloMapper;
+    private final VueloMapper vueloMapper;
 
     @Autowired
     public VueloController(AerolineaService services, VueloMapper vueloMapper) {
@@ -30,7 +30,7 @@ public class VueloController {
     @GetMapping
     public List<VueloDto> getVuelosPendientes(@PathVariable String aerolineaName) {
         return services.getVuelosPendientes(aerolineaName).stream()
-                .map(v -> vueloMapper.toDto(v))
+                .map(vueloMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -46,20 +46,20 @@ public class VueloController {
     }
 
     @GetMapping("/{idVuelo}")
-    public VueloDto getVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
+    public VueloDto getVuelo(@PathVariable long idVuelo) {
         return vueloMapper.toDto(services.getVueloById(idVuelo));
     }
 
-    @PutMapping("/{idVuelo}")
-    public Vuelo putVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
-        //TODO
-        throw new UnsupportedOperationException();
+    @PatchMapping("/{idVuelo}")
+    @ResponseStatus(HttpStatus.OK)
+    public VueloDto patchVuelo(@PathVariable long idVuelo, @RequestBody PostVueloDto vuelo) {
+        Vuelo v = services.updateVuelo(idVuelo, vueloMapper.toVuelo(vuelo));
+        return vueloMapper.toDto(v);
     }
 
     @DeleteMapping("/{idVuelo}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
-        //TODO
-        throw new UnsupportedOperationException();
+    public void deleteVuelo(@PathVariable long idVuelo) {
+        services.deleteVuelo(idVuelo);
     }
 }
