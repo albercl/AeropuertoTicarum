@@ -1,0 +1,312 @@
+{
+	"info": {
+		"_postman_id": "925512a6-47d7-4a3e-a34b-cec8b3f3d3aa",
+		"name": "Aeropuerto Ticarum",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19439048"
+	},
+	"item": [
+		{
+			"name": "Vuelos",
+			"item": [
+				{
+					"name": "Vuelos pendientes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aerolinea/services/vuelo",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aerolinea",
+								"services",
+								"vuelo"
+							],
+							"variable": [
+								{
+									"key": "aerolinea",
+									"value": "{{aerolinea}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vuelo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"aerolinea\": 1,\r\n    \"avion\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/:aerolinea/services/vuelo",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aerolinea",
+								"services",
+								"vuelo"
+							],
+							"variable": [
+								{
+									"key": "aerolinea",
+									"value": "{{aerolinea}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vuelo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aaerolinea/services/vuelo/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aaerolinea",
+								"services",
+								"vuelo",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "aaerolinea",
+									"value": "{{aerolinea}}"
+								},
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vuelo",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aaerolinea/services/vuelo/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aaerolinea",
+								"services",
+								"vuelo",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "aaerolinea",
+									"value": "{{aerolinea}}"
+								},
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Aerolínea",
+			"item": [
+				{
+					"name": "Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aerolinea/services/info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aerolinea",
+								"services",
+								"info"
+							],
+							"variable": [
+								{
+									"key": "aerolinea",
+									"value": "{{aerolinea}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Salidas",
+			"item": [
+				{
+					"name": "Salidas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aerolinea/services/salida",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aerolinea",
+								"services",
+								"salida"
+							],
+							"variable": [
+								{
+									"key": "aerolinea",
+									"value": "{{aerolinea}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Salida vuelo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aerolinea/services/salida/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aerolinea",
+								"services",
+								"salida",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "aerolinea",
+									"value": "{{aerolinea}}"
+								},
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Despegue vuelo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/:aerolinea/services/salida/:id/despegue",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								":aerolinea",
+								"services",
+								"salida",
+								":id",
+								"despegue"
+							],
+							"variable": [
+								{
+									"key": "aerolinea",
+									"value": "{{aerolinea}}"
+								},
+								{
+									"key": "id",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Aviones",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/:aerolinea/services/aviones",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						":aerolinea",
+						"services",
+						"aviones"
+					],
+					"variable": [
+						{
+							"key": "aerolinea",
+							"value": "{{aerolinea}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "aerolinea",
+			"value": "MiAerolinea",
+			"type": "string"
+		}
+	]
+}
