@@ -3,6 +3,9 @@ package dev.albercl.aeropuertoticarum.controllers;
 import dev.albercl.aeropuertoticarum.dto.AvionDto;
 import dev.albercl.aeropuertoticarum.mappers.AvionMapper;
 import dev.albercl.aeropuertoticarum.services.AerolineaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +30,11 @@ public class AvionController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all the planes of the airline")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of planes"),
+            @ApiResponse(responseCode = "404", description = "Airline not found")
+    })
     public List<AvionDto> getAviones(@PathVariable String aerolineaName) {
         return service.getAviones(aerolineaName)
                 .stream()

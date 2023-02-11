@@ -4,6 +4,9 @@ import dev.albercl.aeropuertoticarum.dto.SalidaDto;
 import dev.albercl.aeropuertoticarum.dto.VueloDto;
 import dev.albercl.aeropuertoticarum.mappers.VueloMapper;
 import dev.albercl.aeropuertoticarum.services.AerolineaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,11 @@ public class SalidaController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all the flights that have taken off")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of flights"),
+            @ApiResponse(responseCode = "404", description = "Airline not found")
+    })
     public List<VueloDto> getSalida(@PathVariable String aerolineaName) {
         return aerolineaService
                 .getVuelosDespegados(aerolineaName)
@@ -34,13 +42,21 @@ public class SalidaController {
     }
 
     @GetMapping("/{idVuelo}")
-    public SalidaDto getSalidaVuelo(@PathVariable long idVuelo) {
+    @Operation(summary = "Get the info about a flight status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Flight")
+    })
+    public SalidaDto getSalidaVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
         return vueloMapper.toSalidaDto(aerolineaService.getVueloById(idVuelo));
     }
 
     @PostMapping("/{idVuelo}/despegue")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void postDespegueVuelo(@PathVariable long idVuelo) {
+    @Operation(summary = "Post the flight that has taken off")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Flight")
+    })
+    public void postDespegueVuelo(@PathVariable String aerolineaName, @PathVariable long idVuelo) {
         aerolineaService.despegarVuelo(idVuelo);
     }
 }
